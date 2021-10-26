@@ -26,12 +26,20 @@ void terminal_put_entry_at(struct terminal *terminal, char c, uint8_t color,
 void terminal_put_char(struct terminal *terminal, char c) {
   terminal_put_entry_at(terminal, c, terminal->color, terminal->column,
                         terminal->row);
-  ++terminal->column;
-  if (terminal->column == VGA_WIDTH) {
+  if (c == '\n') {
     terminal->column = 0;
     ++terminal->row;
     if (terminal->row == VGA_HEIGHT) {
       terminal->row = 0;
+    }
+  } else {
+    ++terminal->column;
+    if (terminal->column == VGA_WIDTH) {
+      terminal->column = 0;
+      ++terminal->row;
+      if (terminal->row == VGA_HEIGHT) {
+        terminal->row = 0;
+      }
     }
   }
 }

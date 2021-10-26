@@ -3,6 +3,7 @@ GEM
   specs:
     colorize (0.8.1)
     rake (13.0.6)
+    rufo (0.13.0)
 
 PLATFORMS
   x86_64-linux
@@ -10,6 +11,7 @@ PLATFORMS
 DEPENDENCIES
   colorize
   rake
+  rufo
 
 BUNDLED WITH
    2.2.27

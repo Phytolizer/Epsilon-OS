@@ -1,65 +1,82 @@
-require 'colorize'
-require 'pathname'
+require "colorize"
+require "date"
+require "pathname"
 
-COMPILER = ENV['CC'] || 'i686-elf-gcc'
-ASSEMBLER = ENV['ASM'] || 'i686-elf-as'
-LINKER = ENV['LD'] || 'i686-elf-ld'
+COMPILER = ENV["CC"] || "i686-elf-gcc"
+ASSEMBLER = ENV["ASM"] || "i686-elf-as"
+LINKER = ENV["LD"] || "i686-elf-ld"
 
-exe_length = [COMPILER.length, ASSEMBLER.length, LINKER.length].max + 3
+exe_length = [COMPILER.length, ASSEMBLER.length, LINKER.length].max + "-- ".length
 
-SOURCES = File.read('c.list').split
-ASM = File.read('s.list').split
-BUILD = 'builddir'
-KERNEL = 'kernel'
+SOURCES = File.read("c.list").split
+ASM = File.read("s.list").split
+BUILD = "builddir"
+KERNEL = "kernel"
 FULL_KERNEL = "#{BUILD}/#{KERNEL}"
 
 class String
   def to_obj
     p = Pathname(self).each_filename.to_a
-    "#{BUILD}/#{p.join('_')}.o"
+    "#{BUILD}/#{p.join("_")}.o"
   end
 end
 
 OBJS = SOURCES.map(&:to_obj) + ASM.map(&:to_obj)
 
-ok = true
+def run_command(cmd, fatal: true)
+  ok = system cmd
+  exit 1 unless ok || !fatal
+  ok
+end
 
 if !File.directory?(BUILD)
-  ok = system "mkdir #{BUILD}"
+  run_command "mkdir #{BUILD}"
 end
 
-exit 1 unless ok
+should_rebuild = {}
 
-puts "-- Build #{'C'.yellow} code"
+OBJS.each do |obj|
+  mtime = File.mtime(obj)
+  mtime = DateTime.parse(mtime.to_s)
+  stamp = "#{obj}.stamp"
+  last_mtime = File.exist?(stamp) ? File.read(stamp) : nil
+  last_mtime = DateTime.iso8601(last_mtime) unless last_mtime.nil?
+  should_rebuild[obj] = last_mtime.nil? || last_mtime < mtime
+end
+
+puts "-- Build #{"C".yellow} code"
 SOURCES.each do |src|
-  puts "%#{exe_length}s : %s => %-30s" % [COMPILER, src.blue, src.to_obj.green]
-  ok = system "#{COMPILER} -c #{src} -o #{src.to_obj} -ffreestanding"
-  exit 1 unless ok
+  next unless should_rebuild[src.to_obj]
+  puts "%#{exe_length}s : %s => %s" % [COMPILER, src.blue, src.to_obj.green]
+  run_command "#{COMPILER} -c #{src} -o #{src.to_obj} -ffreestanding"
 end
-puts "-- Build #{'assembly'.yellow} code"
+puts "-- Build #{"assembly".yellow} code"
 ASM.each do |asm|
-  puts "%#{exe_length}s : %s => %-30s" % [ASSEMBLER, asm.blue, asm.to_obj.green]
-  ok = system "#{ASSEMBLER} #{asm} -o #{asm.to_obj}"
-  exit 1 unless ok
+  next unless should_rebuild[asm.to_obj]
+  puts "%#{exe_length}s : %s => %s" % [ASSEMBLER, asm.blue, asm.to_obj.green]
+  run_command "#{ASSEMBLER} #{asm} -o #{asm.to_obj}"
 end
 
-puts "-- #{'Link'.yellow}"
-puts "%#{exe_length}s : [#{OBJS.map(&:blue).join(', ')}] => #{FULL_KERNEL.green}" % [LINKER]
-ok = system "#{LINKER} -T link.ld -nostdlib #{OBJS.join(' ')} -o #{FULL_KERNEL}"
-exit 1 unless ok
+if should_rebuild.any? { |_, v| v }
+  puts "-- #{"Link".yellow}"
+  puts "%#{exe_length}s : [#{OBJS.map(&:blue).join(", ")}] => #{FULL_KERNEL.green}" % [LINKER]
+  run_command "#{LINKER} -T link.ld -nostdlib #{OBJS.join(" ")} -o #{FULL_KERNEL}"
 
-# check bootable
-print "-- #{'Check'.yellow} image..."
-ok = system "grub-file --is-x86-multiboot #{FULL_KERNEL}"
-puts ok ? "OK".green : "NOT OK".red
-exit 1 unless ok
+  # check bootable
+  print "-- #{"Check".yellow} image..."
+  ok = run_command "grub-file --is-x86-multiboot #{FULL_KERNEL}", fatal: false
+  puts ok ? "OK".green : "NOT OK".red
+  exit 1 unless ok
 
-puts "-- #{'Pack'.yellow} image into ISO"
-ok = system "mkdir -p isodir/boot/grub"
-exit 1 unless ok
-ok = system "cp #{FULL_KERNEL} isodir/boot/alpha.bin"
-exit 1 unless ok
-ok = system "cp grub.cfg isodir/boot/grub/grub.cfg"
-exit 1 unless ok
-ok = system "grub-mkrescue -o alpha.iso isodir"
-exit 1 unless ok
+  puts "-- #{"Pack".yellow} image into ISO"
+  run_command "mkdir -p isodir/boot/grub"
+  run_command "cp #{FULL_KERNEL} isodir/boot/alpha.bin"
+  run_command "cp grub.cfg isodir/boot/grub/grub.cfg"
+  run_command "grub-mkrescue -o alpha.iso isodir"
+end
+
+puts "-- #{"SUCCESS".green}"
+
+OBJS.each do |obj|
+  File.write("#{obj}.stamp", DateTime.parse(File.mtime(obj).to_s).iso8601)
+end
