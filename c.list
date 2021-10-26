@@ -1,3 +1,4 @@
 kernel.c
+tools/memory.c
 tools/terminal.c
 tools/vga.c

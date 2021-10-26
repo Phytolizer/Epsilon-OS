@@ -18,3 +18,4 @@ void terminal_put_entry_at(struct terminal *terminal, char c, uint8_t color,
                            size_t x, size_t y);
 void terminal_put_char(struct terminal *terminal, char c);
 void terminal_write(struct terminal *terminal, struct string_view sv);
+void terminal_scroll(struct terminal *terminal, long amount);

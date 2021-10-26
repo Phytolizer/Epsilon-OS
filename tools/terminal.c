@@ -1,4 +1,5 @@
 #include "terminal.h"
+#include "memory.h"
 
 void terminal_init(struct terminal *terminal) {
   terminal->row = 0;
@@ -38,7 +39,7 @@ void terminal_put_char(struct terminal *terminal, char c) {
       terminal->column = 0;
       ++terminal->row;
       if (terminal->row == VGA_HEIGHT) {
-        terminal->row = 0;
+        terminal_scroll(terminal, 1);
       }
     }
   }
@@ -47,5 +48,28 @@ void terminal_put_char(struct terminal *terminal, char c) {
 void terminal_write(struct terminal *terminal, struct string_view sv) {
   for (size_t i = 0; i < sv.length; ++i) {
     terminal_put_char(terminal, sv.data[i]);
+  }
+}
+
+void terminal_scroll(struct terminal *terminal, long amount) {
+  if (amount == 0) {
+    return;
+  }
+  if (amount > 0) {
+    for (long i = amount; i < VGA_HEIGHT; ++i) {
+      memcpy(&terminal->buffer[(i - amount) * VGA_WIDTH],
+             &terminal->buffer[i * VGA_WIDTH], VGA_WIDTH * sizeof(uint16_t));
+    }
+    for (long i = VGA_HEIGHT - amount; i < VGA_HEIGHT; ++i) {
+      memset(&terminal->buffer[i * VGA_WIDTH], 0, VGA_WIDTH * sizeof(uint16_t));
+    }
+  } else {
+    for (long i = VGA_HEIGHT - amount - 1; i >= 0; ++i) {
+      memcpy(&terminal->buffer[(i + amount) * VGA_WIDTH],
+             &terminal->buffer[i * VGA_WIDTH], VGA_WIDTH * sizeof(uint16_t));
+    }
+    for (long i = 0; i < amount; ++i) {
+      memset(&terminal->buffer[i * VGA_WIDTH], 0, VGA_WIDTH * sizeof(uint16_t));
+    }
   }
 }
