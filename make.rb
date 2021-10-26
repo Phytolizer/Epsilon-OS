@@ -12,6 +12,7 @@ SOURCES = File.read("c.list").split
 ASM = File.read("s.list").split
 BUILD = "builddir"
 KERNEL = "kernel"
+NAME = "epsilon"
 FULL_KERNEL = "#{BUILD}/#{KERNEL}"
 
 class String
@@ -71,9 +72,9 @@ if should_rebuild.any? { |_, v| v }
 
   puts "-- #{"Pack".yellow} image into ISO"
   run_command "mkdir -p isodir/boot/grub"
-  run_command "cp #{FULL_KERNEL} isodir/boot/alpha.bin"
+  run_command "cp #{FULL_KERNEL} isodir/boot/#{NAME}.bin"
   run_command "cp grub.cfg isodir/boot/grub/grub.cfg"
-  run_command "grub-mkrescue -o alpha.iso isodir"
+  run_command "grub-mkrescue -o #{NAME}.iso isodir"
 end
 
 puts "-- #{"SUCCESS".green}"
