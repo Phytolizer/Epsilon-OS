@@ -35,13 +35,14 @@ end
 
 should_rebuild = {}
 
-OBJS.each do |obj|
-  mtime = File.mtime(obj)
+(SOURCES + ASM).each do |f|
+  obj = f.to_obj
+  mtime = File.mtime(f)
   mtime = DateTime.parse(mtime.to_s)
   stamp = "#{obj}.stamp"
   last_mtime = File.exist?(stamp) ? File.read(stamp) : nil
   last_mtime = DateTime.iso8601(last_mtime) unless last_mtime.nil?
-  should_rebuild[obj] = last_mtime.nil? || last_mtime < mtime
+  should_rebuild[obj] = last_mtime.nil? || last_mtime.iso8601 < mtime.iso8601
 end
 
 puts "-- Build #{"C".yellow} code"
