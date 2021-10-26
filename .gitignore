@@ -1,1 +1,4 @@
 /builddir
+*.iso
+*.bin
+/isodir

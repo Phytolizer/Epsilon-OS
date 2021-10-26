@@ -47,7 +47,17 @@ ok = system "#{LINKER} -T link.ld -nostdlib #{OBJS.join(' ')} -o #{FULL_KERNEL}"
 exit 1 unless ok
 
 # check bootable
-print "Check image..."
+print "-- #{'Check'.yellow} image..."
 ok = system "grub-file --is-x86-multiboot #{FULL_KERNEL}"
 puts ok ? "OK".green : "NOT OK".red
+exit 1 unless ok
+
+puts "-- #{'Pack'.yellow} image into ISO"
+ok = system "mkdir -p isodir/boot/grub"
+exit 1 unless ok
+ok = system "cp #{FULL_KERNEL} isodir/boot/alpha.bin"
+exit 1 unless ok
+ok = system "cp grub.cfg isodir/boot/grub/grub.cfg"
+exit 1 unless ok
+ok = system "grub-mkrescue -o alpha.iso isodir"
 exit 1 unless ok
