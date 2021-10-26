@@ -1,5 +1,5 @@
-#include "tools/string.h"
-#include "tools/terminal.h"
+#include "my_libc/string.h"
+#include "my_libc/terminal.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

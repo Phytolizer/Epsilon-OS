@@ -14,3 +14,5 @@ struct string_view {
 
 #define STRING_VIEW_LIT(Str)                                                   \
   (struct string_view) { .data = (Str), .length = sizeof(Str) - 1 }
+
+struct string_view string_make_view(struct string str);

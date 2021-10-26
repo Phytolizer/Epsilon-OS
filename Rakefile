@@ -11,3 +11,9 @@ end
 task :clean do
   system 'rm -rfv builddir'
 end
+
+retouch_task = task :retouch do
+  system 'fd -e c -e s -x touch'
+end
+
+task all: [retouch_task, make_task]

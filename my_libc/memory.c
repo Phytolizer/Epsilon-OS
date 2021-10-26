@@ -1,6 +1,6 @@
 #include "memory.h"
 
-void memcpy(void *dest, void *src, size_t count) {
+void memory_copy(void *dest, void *src, size_t count) {
   char *destc = dest;
   char *srcc = src;
 
@@ -9,7 +9,7 @@ void memcpy(void *dest, void *src, size_t count) {
   }
 }
 
-void memset(void *dest, char value, size_t count) {
+void memory_set(void *dest, char value, size_t count) {
   char *destc = dest;
   for (size_t i = 0; i < count; ++i) {
     destc[i] = value;
