@@ -5,5 +5,5 @@ make_task = task :make do
 end
 
 task :run => make_task do
-  system 'qemu-system-i386 -kernel builddir/kernel'
+  system 'qemu-system-i386 -cdrom alpha.iso'
 end

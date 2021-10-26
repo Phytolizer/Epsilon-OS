@@ -1,4 +1,5 @@
 require 'colorize'
+require 'pathname'
 
 COMPILER = ENV['CC'] || 'i686-elf-gcc'
 ASSEMBLER = ENV['ASM'] || 'i686-elf-as'
@@ -14,7 +15,8 @@ FULL_KERNEL = "#{BUILD}/#{KERNEL}"
 
 class String
   def to_obj
-    "#{BUILD}/#{self}.o"
+    p = Pathname(self).each_filename.to_a
+    "#{BUILD}/#{p.join('_')}.o"
   end
 end
 
