@@ -1,0 +1,15 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/i686-elf-gcc",
+      "-c",
+      "-ffreestanding",
+      "-o",
+      "builddir/kernel.c.o",
+      "kernel.c"
+    ],
+    "directory": "/extra/Code/C/os",
+    "file": "/extra/Code/C/os/kernel.c",
+    "output": "/extra/Code/C/os/builddir/kernel.c.o"
+  }
+]
