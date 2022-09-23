@@ -2,7 +2,7 @@ root = true
 
 [*.{c,h}]
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 [*.{asm,ld}]
 indent_style = tab
