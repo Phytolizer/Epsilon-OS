@@ -3,13 +3,13 @@ require "date"
 require "pathname"
 
 COMPILER = ENV["CC"] || "i686-elf-gcc"
-ASSEMBLER = ENV["ASM"] || "i686-elf-as"
+ASSEMBLER = ENV["ASM"] || "nasm"
 LINKER = ENV["LD"] || "i686-elf-ld"
 
 exe_length = [COMPILER.length, ASSEMBLER.length, LINKER.length].max + "-- ".length
 
 SOURCES = File.read("c.list").split
-ASM = File.read("s.list").split
+ASM = File.read("asm.list").split
 BUILD = "builddir"
 KERNEL = "kernel"
 NAME = "epsilon"
@@ -56,7 +56,7 @@ puts "-- Build #{"assembly".yellow} code"
 ASM.each do |asm|
   next unless should_rebuild[asm.to_obj]
   puts "%#{exe_length}s : %s => %s" % [ASSEMBLER, asm.blue, asm.to_obj.green]
-  run_command "#{ASSEMBLER} #{asm} -o #{asm.to_obj}"
+  run_command "#{ASSEMBLER} -f elf32 #{asm} -o #{asm.to_obj}"
 end
 
 if should_rebuild.any? { |_, v| v }
