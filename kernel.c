@@ -5,9 +5,9 @@
 #include "my_libc/string.h"
 #include "my_libc/terminal.h"
 
-size_t strlen(const char *str) {
+size_t strlen(const char* str) {
     size_t len = 0;
-    for (const char *p = str; *p != '\0'; ++p) {
+    for (const char* p = str; *p != '\0'; ++p) {
         ++len;
     }
     return len;

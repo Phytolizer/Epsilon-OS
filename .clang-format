@@ -1,6 +1,7 @@
 ---
 BasedOnStyle: Google
 PointerAlignment: Left
+DerivePointerAlignment: false
 AllowShortFunctionsOnASingleLine: None
 IncludeBlocks: Regroup
 AlignEscapedNewlines: DontAlign

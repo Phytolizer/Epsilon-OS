@@ -3,12 +3,12 @@
 #include <stddef.h>
 
 struct string {
-    char *data;
+    char* data;
     size_t length;
 };
 
 struct string_view {
-    const char *data;
+    const char* data;
     size_t length;
 };
 

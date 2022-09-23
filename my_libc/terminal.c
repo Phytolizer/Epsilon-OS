@@ -2,11 +2,11 @@
 
 #include "memory.h"
 
-void terminal_init(struct terminal *terminal) {
+void terminal_init(struct terminal* terminal) {
     terminal->row = 0;
     terminal->column = 0;
     terminal->color = vga_entry_color(vga_color_light_grey, vga_color_black);
-    terminal->buffer = (uint16_t *)0xB8000;
+    terminal->buffer = (uint16_t*)0xB8000;
     for (size_t y = 0; y < VGA_HEIGHT; ++y) {
         for (size_t x = 0; x < VGA_WIDTH; ++x) {
             size_t index = x + y * VGA_WIDTH;
@@ -15,16 +15,16 @@ void terminal_init(struct terminal *terminal) {
     }
 }
 
-void terminal_set_color(struct terminal *terminal, uint8_t color) {
+void terminal_set_color(struct terminal* terminal, uint8_t color) {
     terminal->color = color;
 }
 
-void terminal_put_entry_at(struct terminal *terminal, char c, uint8_t color, size_t x, size_t y) {
+void terminal_put_entry_at(struct terminal* terminal, char c, uint8_t color, size_t x, size_t y) {
     size_t index = x + y * VGA_WIDTH;
     terminal->buffer[index] = vga_entry(c, color);
 }
 
-void terminal_put_char(struct terminal *terminal, char c) {
+void terminal_put_char(struct terminal* terminal, char c) {
     if (c == '\n') {
         terminal->column = 0;
         ++terminal->row;
@@ -44,13 +44,13 @@ void terminal_put_char(struct terminal *terminal, char c) {
     }
 }
 
-void terminal_write(struct terminal *terminal, struct string_view sv) {
+void terminal_write(struct terminal* terminal, struct string_view sv) {
     for (size_t i = 0; i < sv.length; ++i) {
         terminal_put_char(terminal, sv.data[i]);
     }
 }
 
-void terminal_scroll(struct terminal *terminal, long amount) {
+void terminal_scroll(struct terminal* terminal, long amount) {
     if (amount == 0) {
         return;
     }
